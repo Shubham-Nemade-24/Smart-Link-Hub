@@ -292,12 +292,6 @@ Full API documentation is available in [docs/API.md](docs/API.md).
 
 ---
 
-## 📄 License
-
-This project is open source under the [MIT License](LICENSE).
-
----
-
 ## 👤 Author
 
 **Uday Patil**, 
@@ -307,5 +301,6 @@ This project is open source under the [MIT License](LICENSE).
 ---
 
 ⭐ Star this repo if you found it helpful!
+
 
 
