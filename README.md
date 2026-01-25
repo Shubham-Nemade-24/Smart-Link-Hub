@@ -206,11 +206,12 @@ This project is open source and available under the [MIT License](LICENSE).
 
 ## 👤 Author
 
-**Uday Patil**
-**Shubham Nemade**
+**Uday Patil**, 
+**Shubham Nemade**, 
 **Shivraj Patil**
 
 ---
 
 ⭐ Star this repo if you found it helpful!
+
 
