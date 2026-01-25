@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
 import { useApp } from '../App'
+import { API_URL } from '../api'
 
 function HubEditor() {
     const { id } = useParams()
@@ -42,7 +43,7 @@ function HubEditor() {
 
     const fetchHub = async () => {
         try {
-            const res = await fetch(`/api/hubs/${id}`, {
+            const res = await fetch(`${API_URL}/api/hubs/${id}`, {
                 headers: { 'Authorization': `Bearer ${user?.id}` }
             })
             if (!res.ok) throw new Error('Hub not found')
@@ -83,7 +84,7 @@ function HubEditor() {
 
         setSaving(true)
         try {
-            const url = isEditing ? `/api/hubs/${id}` : '/api/hubs'
+            const url = isEditing ? `${API_URL}/api/hubs/${id}` : `${API_URL}/api/hubs`
             const method = isEditing ? 'PUT' : 'POST'
 
             const res = await fetch(url, {

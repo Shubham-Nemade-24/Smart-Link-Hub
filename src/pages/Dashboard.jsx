@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useApp } from '../App'
+import { API_URL } from '../api'
 
 function Dashboard() {
     const { user, logout, addToast } = useApp()
@@ -24,7 +25,7 @@ function Dashboard() {
 
     const fetchHubs = async () => {
         try {
-            const res = await fetch('/api/hubs', {
+            const res = await fetch(`${API_URL}/api/hubs`, {
                 headers: {
                     'Authorization': `Bearer ${user?.id}`
                 }
@@ -47,7 +48,7 @@ function Dashboard() {
         if (!confirm('Are you sure you want to delete this hub?')) return
 
         try {
-            const res = await fetch(`/api/hubs/${hubId}`, {
+            const res = await fetch(`${API_URL}/api/hubs/${hubId}`, {
                 method: 'DELETE',
                 headers: {
                     'Authorization': `Bearer ${user?.id}`
@@ -245,7 +246,7 @@ function HubCard({ hub, onDelete }) {
     const fetchQRCode = async () => {
         setLoadingQR(true)
         try {
-            const res = await fetch(`/api/hubs/${hub.id}/qr`, {
+            const res = await fetch(`${API_URL}/api/hubs/${hub.id}/qr`, {
                 headers: { 'Authorization': `Bearer ${user?.id}` }
             })
             const data = await res.json()

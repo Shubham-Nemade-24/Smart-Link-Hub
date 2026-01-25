@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useParams, Link, useNavigate } from 'react-router-dom'
 import { useApp } from '../App'
+import { API_URL } from '../api'
 
 function Analytics() {
     const { id } = useParams()
@@ -23,10 +24,10 @@ function Analytics() {
     const fetchAnalytics = async () => {
         try {
             const [hubRes, analyticsRes] = await Promise.all([
-                fetch(`/api/hubs/${id}`, {
+                fetch(`${API_URL}/api/hubs/${id}`, {
                     headers: { 'Authorization': `Bearer ${user?.id}` }
                 }),
-                fetch(`/api/analytics/${id}?range=${timeRange}`, {
+                fetch(`${API_URL}/api/analytics/${id}?range=${timeRange}`, {
                     headers: { 'Authorization': `Bearer ${user?.id}` }
                 })
             ])
@@ -81,7 +82,7 @@ function Analytics() {
                     </Link>
                     <div className="flex gap-sm">
                         <button
-                            onClick={() => window.location.href = `/api/analytics/${id}/export?format=csv&range=${timeRange}&authorization=${user?.id}`}
+                            onClick={() => window.location.href = `${API_URL}/api/analytics/${id}/export?format=csv&range=${timeRange}&authorization=${user?.id}`}
                             className="btn btn-secondary"
                         >
                             Export CSV

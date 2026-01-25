@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { useApp } from '../App'
+import { API_URL } from '../api'
 
 function Login() {
     const [isLogin, setIsLogin] = useState(true)
@@ -19,7 +20,7 @@ function Login() {
         setLoading(true)
 
         try {
-            const endpoint = isLogin ? '/api/auth/login' : '/api/auth/register'
+            const endpoint = isLogin ? `${API_URL}/api/auth/login` : `${API_URL}/api/auth/register`
             const body = isLogin
                 ? { email, password }
                 : { email, password, name }

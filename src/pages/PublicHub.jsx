@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useParams, Link } from 'react-router-dom'
+import { API_URL } from '../api'
 
 function PublicHub() {
     const { slug } = useParams()
@@ -15,7 +16,7 @@ function PublicHub() {
 
     const fetchHub = async () => {
         try {
-            const res = await fetch(`/api/public/${slug}`)
+            const res = await fetch(`${API_URL}/api/public/${slug}`)
             if (!res.ok) {
                 throw new Error('Hub not found')
             }
@@ -31,7 +32,7 @@ function PublicHub() {
 
     const trackVisit = async () => {
         try {
-            await fetch('/api/analytics/track', {
+            await fetch(`${API_URL}/api/analytics/track`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -48,7 +49,7 @@ function PublicHub() {
 
     const trackClick = async (linkId) => {
         try {
-            await fetch('/api/analytics/track', {
+            await fetch(`${API_URL}/api/analytics/track`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
