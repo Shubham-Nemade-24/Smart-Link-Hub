@@ -206,9 +206,11 @@ This project is open source and available under the [MIT License](LICENSE).
 
 ## 👤 Author
 
+**Uday Patil**
 **Shubham Nemade**
-- GitHub: [@Shubham-Nemade-24](https://github.com/Shubham-Nemade-24)
+**Shivraj Patil**
 
 ---
 
 ⭐ Star this repo if you found it helpful!
+
