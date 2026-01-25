@@ -282,11 +282,53 @@ Full API documentation is available in [docs/API.md](docs/API.md).
 
 ---
 
+## 📜 Git Commit Practices
+
+This project follows conventional commit practices for clear and trackable history.
+
+### Commit Message Format
+```
+<type>: <short description>
+
+[optional body]
+```
+
+### Commit Types
+| Type | Description |
+|------|-------------|
+| `feat` | New feature |
+| `fix` | Bug fix |
+| `docs` | Documentation changes |
+| `style` | Code style (formatting, semicolons, etc.) |
+| `refactor` | Code refactoring |
+| `test` | Adding or updating tests |
+| `chore` | Maintenance tasks |
+
+### Examples
+```bash
+feat: Add QR code generation for hubs
+fix: Resolve CORS issue in production deployment
+docs: Update README with deployment instructions
+refactor: Migrate database from SQLite to PostgreSQL
+style: Format code with consistent indentation
+chore: Update dependencies
+```
+
+### Commit History Highlights
+- `feat: Initial Smart Link Hub implementation`
+- `feat: Add smart display rules (time/device-based)`
+- `feat: Implement real-time analytics dashboard`
+- `refactor: Migrate from SQLite to PostgreSQL`
+- `fix: Configure CORS for production deployment`
+- `docs: Add comprehensive README and API documentation`
+
+---
+
 ## 🤝 Contributing
 
 1. Fork the repository
 2. Create feature branch (`git checkout -b feature/NewFeature`)
-3. Commit changes (`git commit -m 'Add NewFeature'`)
+3. Commit changes (`git commit -m 'feat: Add NewFeature'`)
 4. Push to branch (`git push origin feature/NewFeature`)
 5. Open a Pull Request
 
