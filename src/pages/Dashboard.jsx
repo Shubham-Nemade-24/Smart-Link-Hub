@@ -231,62 +231,128 @@ function Dashboard() {
 }
 
 function HubCard({ hub, onDelete }) {
+    const { user, addToast } = useApp()
+    const [showQR, setShowQR] = useState(false)
+    const [qrData, setQrData] = useState(null)
+    const [loadingQR, setLoadingQR] = useState(false)
     const publicUrl = `${window.location.origin}/h/${hub.slug}`
 
     const copyUrl = () => {
         navigator.clipboard.writeText(publicUrl)
+        addToast('URL copied to clipboard!')
+    }
+
+    const fetchQRCode = async () => {
+        setLoadingQR(true)
+        try {
+            const res = await fetch(`/api/hubs/${hub.id}/qr`, {
+                headers: { 'Authorization': `Bearer ${user?.id}` }
+            })
+            const data = await res.json()
+            setQrData(data)
+            setShowQR(true)
+        } catch (error) {
+            addToast('Failed to generate QR code', 'error')
+        } finally {
+            setLoadingQR(false)
+        }
+    }
+
+    const downloadQR = () => {
+        if (!qrData?.qrCode) return
+        const link = document.createElement('a')
+        link.download = `${hub.slug}-qrcode.png`
+        link.href = qrData.qrCode
+        link.click()
     }
 
     return (
-        <div className="hub-card">
-            <div className="hub-card-header">
-                <h3 className="hub-card-title">{hub.title}</h3>
-                <a
-                    href={publicUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="hub-card-slug"
-                >
-                    /{hub.slug} ↗
-                </a>
-            </div>
-            <div className="hub-card-body">
-                <div className="hub-card-stats">
-                    <div className="hub-card-stat">
-                        <p className="hub-card-stat-value">{hub.clickCount || 0}</p>
-                        <p className="hub-card-stat-label">Clicks</p>
+        <>
+            <div className="hub-card">
+                <div className="hub-card-header">
+                    <h3 className="hub-card-title">{hub.title}</h3>
+                    <a
+                        href={publicUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="hub-card-slug"
+                    >
+                        /{hub.slug} ↗
+                    </a>
+                </div>
+                <div className="hub-card-body">
+                    <div className="hub-card-stats">
+                        <div className="hub-card-stat">
+                            <p className="hub-card-stat-value">{hub.clickCount || 0}</p>
+                            <p className="hub-card-stat-label">Clicks</p>
+                        </div>
+                        <div className="hub-card-stat">
+                            <p className="hub-card-stat-value">{hub.linkCount || 0}</p>
+                            <p className="hub-card-stat-label">Links</p>
+                        </div>
                     </div>
-                    <div className="hub-card-stat">
-                        <p className="hub-card-stat-value">{hub.linkCount || 0}</p>
-                        <p className="hub-card-stat-label">Links</p>
+                    {hub.description && (
+                        <p className="text-secondary text-sm" style={{
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            whiteSpace: 'nowrap'
+                        }}>
+                            {hub.description}
+                        </p>
+                    )}
+                </div>
+                <div className="hub-card-footer">
+                    <Link to={`/hub/${hub.id}/edit`} className="btn btn-ghost" style={{ flex: 1 }}>
+                        Edit
+                    </Link>
+                    <Link to={`/hub/${hub.id}/analytics`} className="btn btn-ghost" style={{ flex: 1 }}>
+                        Analytics
+                    </Link>
+                    <button onClick={fetchQRCode} className="btn btn-ghost" title="QR Code" disabled={loadingQR}>
+                        {loadingQR ? '...' : '📱'}
+                    </button>
+                    <button onClick={copyUrl} className="btn btn-ghost" title="Copy URL">
+                        📋
+                    </button>
+                    <button onClick={onDelete} className="btn btn-ghost" style={{ color: 'var(--color-error)' }} title="Delete">
+                        🗑️
+                    </button>
+                </div>
+            </div>
+
+            {/* QR Code Modal */}
+            {showQR && qrData && (
+                <div className="modal-overlay" onClick={() => setShowQR(false)}>
+                    <div className="modal" onClick={e => e.stopPropagation()} style={{ maxWidth: '400px' }}>
+                        <div className="modal-header">
+                            <h3 className="modal-title">QR Code</h3>
+                            <button onClick={() => setShowQR(false)} className="btn btn-ghost btn-icon">✕</button>
+                        </div>
+                        <div className="modal-body text-center">
+                            <img
+                                src={qrData.qrCode}
+                                alt="QR Code"
+                                style={{
+                                    width: '250px',
+                                    height: '250px',
+                                    margin: '0 auto',
+                                    borderRadius: 'var(--radius-lg)'
+                                }}
+                            />
+                            <p className="text-secondary text-sm mt-lg" style={{ wordBreak: 'break-all' }}>
+                                {qrData.url}
+                            </p>
+                        </div>
+                        <div className="modal-footer">
+                            <button onClick={() => setShowQR(false)} className="btn btn-ghost">Close</button>
+                            <button onClick={downloadQR} className="btn btn-primary">Download PNG</button>
+                        </div>
                     </div>
                 </div>
-                {hub.description && (
-                    <p className="text-secondary text-sm" style={{
-                        overflow: 'hidden',
-                        textOverflow: 'ellipsis',
-                        whiteSpace: 'nowrap'
-                    }}>
-                        {hub.description}
-                    </p>
-                )}
-            </div>
-            <div className="hub-card-footer">
-                <Link to={`/hub/${hub.id}/edit`} className="btn btn-ghost" style={{ flex: 1 }}>
-                    Edit
-                </Link>
-                <Link to={`/hub/${hub.id}/analytics`} className="btn btn-ghost" style={{ flex: 1 }}>
-                    Analytics
-                </Link>
-                <button onClick={copyUrl} className="btn btn-ghost" title="Copy URL">
-                    📋
-                </button>
-                <button onClick={onDelete} className="btn btn-ghost" style={{ color: 'var(--color-error)' }} title="Delete">
-                    🗑️
-                </button>
-            </div>
-        </div>
+            )}
+        </>
     )
 }
 
 export default Dashboard
+

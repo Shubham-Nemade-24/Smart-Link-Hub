@@ -80,6 +80,12 @@ function Analytics() {
                         ← Back to Dashboard
                     </Link>
                     <div className="flex gap-sm">
+                        <button
+                            onClick={() => window.location.href = `/api/analytics/${id}/export?format=csv&range=${timeRange}&authorization=${user?.id}`}
+                            className="btn btn-secondary"
+                        >
+                            Export CSV
+                        </button>
                         <Link to={`/hub/${id}/edit`} className="btn btn-secondary">
                             Edit Hub
                         </Link>
