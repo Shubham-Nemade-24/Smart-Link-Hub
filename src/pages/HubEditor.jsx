@@ -3,6 +3,46 @@ import { useParams, useNavigate, Link } from 'react-router-dom'
 import { useApp } from '../App'
 import { API_URL } from '../api'
 
+// Simple icon labels to replace emoji icon picker
+const LINK_ICONS = [
+    { id: 'link', label: 'Link' },
+    { id: 'globe', label: 'Website' },
+    { id: 'mail', label: 'Email' },
+    { id: 'phone', label: 'Phone' },
+    { id: 'briefcase', label: 'Work' },
+    { id: 'music', label: 'Music' },
+    { id: 'camera', label: 'Photo' },
+    { id: 'video', label: 'Video' },
+    { id: 'file', label: 'Blog' },
+    { id: 'cart', label: 'Shop' },
+]
+
+function getIconSvg(iconId, size = 18) {
+    const props = { width: size, height: size, viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", strokeLinecap: "round", strokeLinejoin: "round" }
+    switch (iconId) {
+        case 'globe':
+            return <svg {...props}><circle cx="12" cy="12" r="10" /><line x1="2" y1="12" x2="22" y2="12" /><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" /></svg>
+        case 'mail':
+            return <svg {...props}><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" /><polyline points="22,6 12,13 2,6" /></svg>
+        case 'phone':
+            return <svg {...props}><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z" /></svg>
+        case 'briefcase':
+            return <svg {...props}><rect x="2" y="7" width="20" height="14" rx="2" ry="2" /><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" /></svg>
+        case 'music':
+            return <svg {...props}><path d="M9 18V5l12-2v13" /><circle cx="6" cy="18" r="3" /><circle cx="18" cy="16" r="3" /></svg>
+        case 'camera':
+            return <svg {...props}><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" /><circle cx="12" cy="13" r="4" /></svg>
+        case 'video':
+            return <svg {...props}><polygon points="23 7 16 12 23 17 23 7" /><rect x="1" y="5" width="15" height="14" rx="2" ry="2" /></svg>
+        case 'file':
+            return <svg {...props}><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" /><line x1="16" y1="13" x2="8" y2="13" /><line x1="16" y1="17" x2="8" y2="17" /></svg>
+        case 'cart':
+            return <svg {...props}><circle cx="9" cy="21" r="1" /><circle cx="20" cy="21" r="1" /><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" /></svg>
+        default: // 'link'
+            return <svg {...props}><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" /><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" /></svg>
+    }
+}
+
 function HubEditor() {
     const { id } = useParams()
     const isEditing = Boolean(id)
@@ -24,7 +64,7 @@ function HubEditor() {
     const [editingLink, setEditingLink] = useState(null)
     const [linkTitle, setLinkTitle] = useState('')
     const [linkUrl, setLinkUrl] = useState('')
-    const [linkIcon, setLinkIcon] = useState('🔗')
+    const [linkIcon, setLinkIcon] = useState('link')
 
     // Rules modal
     const [showRulesModal, setShowRulesModal] = useState(false)
@@ -122,12 +162,12 @@ function HubEditor() {
             setEditingLink(link)
             setLinkTitle(link.title)
             setLinkUrl(link.url)
-            setLinkIcon(link.icon || '🔗')
+            setLinkIcon(link.icon || 'link')
         } else {
             setEditingLink(null)
             setLinkTitle('')
             setLinkUrl('')
-            setLinkIcon('🔗')
+            setLinkIcon('link')
         }
         setShowLinkModal(true)
     }
@@ -194,7 +234,7 @@ function HubEditor() {
             <nav className="navbar">
                 <div className="navbar-content">
                     <Link to="/dashboard" className="btn btn-ghost">
-                        ← Back to Dashboard
+                        Back to Dashboard
                     </Link>
                     <button
                         onClick={saveHub}
@@ -334,12 +374,12 @@ function HubEditor() {
                                             className="link-card"
                                             style={{ textAlign: 'left' }}
                                         >
-                                            <div className="link-card-icon">{link.icon}</div>
+                                            <div className="link-card-icon">{getIconSvg(link.icon, 20)}</div>
                                             <div className="link-card-content">
                                                 <p className="link-card-title">{link.title}</p>
                                                 <p className="link-card-url">{link.url}</p>
                                             </div>
-                                            <span className="link-card-arrow">→</span>
+                                            <span className="link-card-arrow">&rarr;</span>
                                         </a>
                                     ))}
                                 </div>
@@ -366,24 +406,32 @@ function HubEditor() {
                                 onClick={() => setShowLinkModal(false)}
                                 className="btn btn-ghost btn-icon"
                             >
-                                ✕
+                                X
                             </button>
                         </div>
                         <div className="modal-body">
                             <div className="input-group mb-md">
                                 <label className="input-label">Icon</label>
-                                <div className="flex gap-sm">
-                                    {['🔗', '🌐', '📧', '📱', '💼', '🎵', '📸', '🎥', '📝', '🛒'].map(emoji => (
+                                <div className="flex gap-sm" style={{ flexWrap: 'wrap' }}>
+                                    {LINK_ICONS.map(item => (
                                         <button
-                                            key={emoji}
-                                            onClick={() => setLinkIcon(emoji)}
-                                            className={`btn btn-ghost btn-icon ${linkIcon === emoji ? 'active' : ''}`}
+                                            key={item.id}
+                                            onClick={() => setLinkIcon(item.id)}
+                                            className={`btn btn-ghost`}
                                             style={{
-                                                fontSize: '1.25rem',
-                                                background: linkIcon === emoji ? 'var(--color-accent-subtle)' : undefined
+                                                padding: '6px 10px',
+                                                fontSize: 'var(--font-size-xs)',
+                                                background: linkIcon === item.id ? 'var(--color-accent-subtle)' : undefined,
+                                                color: linkIcon === item.id ? 'var(--color-accent-primary)' : undefined,
+                                                border: linkIcon === item.id ? '1px solid var(--color-accent-primary)' : '1px solid var(--color-border-primary)',
+                                                borderRadius: 'var(--radius-md)',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                gap: '4px'
                                             }}
                                         >
-                                            {emoji}
+                                            {getIconSvg(item.id, 14)}
+                                            {item.label}
                                         </button>
                                     ))}
                                 </div>
@@ -454,7 +502,7 @@ function LinkItem({ link, index, totalLinks, onEdit, onDelete, onMove, onToggle,
                         className="btn btn-ghost"
                         style={{ padding: '2px 6px', fontSize: '0.75rem' }}
                     >
-                        ▲
+                        &#9650;
                     </button>
                     <button
                         onClick={() => onMove(1)}
@@ -462,11 +510,11 @@ function LinkItem({ link, index, totalLinks, onEdit, onDelete, onMove, onToggle,
                         className="btn btn-ghost"
                         style={{ padding: '2px 6px', fontSize: '0.75rem' }}
                     >
-                        ▼
+                        &#9660;
                     </button>
                 </div>
 
-                <div style={{ fontSize: '1.5rem' }}>{link.icon}</div>
+                <div style={{ fontSize: '1.5rem', color: 'var(--color-accent-primary)' }}>{getIconSvg(link.icon, 22)}</div>
 
                 <div style={{ flex: 1, minWidth: 0 }}>
                     <p className="font-medium">{link.title}</p>
@@ -493,19 +541,19 @@ function LinkItem({ link, index, totalLinks, onEdit, onDelete, onMove, onToggle,
                     <span className="switch-slider" />
                 </label>
 
-                <button onClick={onRules} className="btn btn-ghost btn-icon" title="Rules">
-                    ⚙️
+                <button onClick={onRules} className="btn btn-ghost" title="Rules" style={{ fontSize: 'var(--font-size-xs)' }}>
+                    Rules
                 </button>
-                <button onClick={onEdit} className="btn btn-ghost btn-icon" title="Edit">
-                    ✏️
+                <button onClick={onEdit} className="btn btn-ghost" title="Edit" style={{ fontSize: 'var(--font-size-xs)' }}>
+                    Edit
                 </button>
                 <button
                     onClick={onDelete}
-                    className="btn btn-ghost btn-icon"
-                    style={{ color: 'var(--color-error)' }}
+                    className="btn btn-ghost"
+                    style={{ color: 'var(--color-error)', fontSize: 'var(--font-size-xs)' }}
                     title="Delete"
                 >
-                    🗑️
+                    Delete
                 </button>
             </div>
         </div>
@@ -552,7 +600,7 @@ function RulesModal({ link, onClose, onSave }) {
             <div className="modal" onClick={e => e.stopPropagation()} style={{ maxWidth: '600px' }}>
                 <div className="modal-header">
                     <h3 className="modal-title">Display Rules for "{link.title}"</h3>
-                    <button onClick={onClose} className="btn btn-ghost btn-icon">✕</button>
+                    <button onClick={onClose} className="btn btn-ghost btn-icon">X</button>
                 </div>
                 <div className="modal-body">
                     <p className="text-secondary mb-lg">
@@ -562,13 +610,16 @@ function RulesModal({ link, onClose, onSave }) {
                     {/* Add Rule Buttons */}
                     <div className="flex gap-sm mb-lg flex-wrap">
                         <button onClick={() => addRule('time')} className="btn btn-secondary">
-                            🕐 Time-Based
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" /></svg>
+                            Time-Based
                         </button>
                         <button onClick={() => addRule('device')} className="btn btn-secondary">
-                            📱 Device-Based
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="5" y="2" width="14" height="20" rx="2" ry="2" /><line x1="12" y1="18" x2="12.01" y2="18" /></svg>
+                            Device-Based
                         </button>
                         <button onClick={() => addRule('location')} className="btn btn-secondary">
-                            🌍 Location-Based
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><line x1="2" y1="12" x2="22" y2="12" /><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" /></svg>
+                            Location-Based
                         </button>
                     </div>
 
@@ -606,16 +657,16 @@ function RuleEditor({ rule, onUpdate, onRemove }) {
         <div className="card" style={{ padding: 'var(--spacing-md)' }}>
             <div className="flex justify-between items-center mb-md">
                 <span className="badge">
-                    {type === 'time' && '🕐 Time-Based'}
-                    {type === 'device' && '📱 Device-Based'}
-                    {type === 'location' && '🌍 Location-Based'}
+                    {type === 'time' && 'Time-Based'}
+                    {type === 'device' && 'Device-Based'}
+                    {type === 'location' && 'Location-Based'}
                 </span>
                 <button
                     onClick={onRemove}
                     className="btn btn-ghost btn-icon"
                     style={{ color: 'var(--color-error)' }}
                 >
-                    ✕
+                    X
                 </button>
             </div>
 

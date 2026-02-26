@@ -78,7 +78,7 @@ function Analytics() {
             <nav className="navbar">
                 <div className="navbar-content">
                     <Link to="/dashboard" className="btn btn-ghost">
-                        ← Back to Dashboard
+                        Back to Dashboard
                     </Link>
                     <div className="flex gap-sm">
                         <button
@@ -96,7 +96,7 @@ function Analytics() {
                             rel="noopener noreferrer"
                             className="btn btn-ghost"
                         >
-                            View Live ↗
+                            View Live
                         </a>
                     </div>
                 </div>
@@ -146,7 +146,7 @@ function Analytics() {
                     {/* Daily Chart */}
                     <div className="chart-container">
                         <div className="chart-header">
-                            <h3 className="chart-title">Views & Clicks Over Time</h3>
+                            <h3 className="chart-title">Views and Clicks Over Time</h3>
                         </div>
                         <div style={{ height: '250px' }}>
                             {dailyData.length > 0 ? (
@@ -209,7 +209,10 @@ function Analytics() {
                                             <tr key={link.id}>
                                                 <td>
                                                     <div className="flex items-center gap-md">
-                                                        <span style={{ fontSize: '1.25rem' }}>{link.icon || '🔗'}</span>
+                                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--color-accent-primary)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                                            <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
+                                                            <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
+                                                        </svg>
                                                         <div>
                                                             <p className="font-medium">{link.title}</p>
                                                             <p className="text-sm text-tertiary">{link.url}</p>
@@ -252,13 +255,13 @@ function Analytics() {
                     <h2 className="text-xl font-semibold mb-lg">Insights</h2>
                     <div className="grid grid-cols-2 md:grid-cols-2 gap-lg">
                         <InsightCard
-                            icon="🏆"
+                            icon={<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" /></svg>}
                             title="Top Performer"
                             value={linkStats[0]?.title || 'No data'}
                             subtitle={linkStats[0] ? `${linkStats[0].clicks} clicks` : ''}
                         />
                         <InsightCard
-                            icon="📱"
+                            icon={<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="5" y="2" width="14" height="20" rx="2" ry="2" /><line x1="12" y1="18" x2="12.01" y2="18" /></svg>}
                             title="Most Common Device"
                             value={deviceBreakdown[0]?.type || 'No data'}
                             subtitle={deviceBreakdown[0] ? `${((deviceBreakdown[0].count / totalViews) * 100).toFixed(0)}% of visits` : ''}
@@ -314,13 +317,11 @@ function SimpleChart({ data }) {
 
 function DeviceBar({ device, total }) {
     const percentage = total > 0 ? (device.count / total) * 100 : 0
-    const icons = { desktop: '🖥️', mobile: '📱', tablet: '📱' }
 
     return (
         <div>
             <div className="flex justify-between items-center mb-xs">
                 <span className="flex items-center gap-sm">
-                    <span>{icons[device.type] || '📱'}</span>
                     <span style={{ textTransform: 'capitalize' }}>{device.type}</span>
                 </span>
                 <span className="text-secondary">{percentage.toFixed(0)}%</span>
@@ -348,14 +349,14 @@ function InsightCard({ icon, title, value, subtitle }) {
         <div className="card">
             <div className="flex items-start gap-md">
                 <div style={{
-                    fontSize: '2rem',
                     width: '48px',
                     height: '48px',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
                     background: 'var(--color-accent-subtle)',
-                    borderRadius: 'var(--radius-lg)'
+                    borderRadius: 'var(--radius-lg)',
+                    color: 'var(--color-accent-primary)'
                 }}>
                     {icon}
                 </div>

@@ -84,7 +84,12 @@ function PublicHub() {
         return (
             <div className="page flex items-center justify-center" style={{ minHeight: '100vh' }}>
                 <div className="text-center">
-                    <div style={{ fontSize: '4rem', marginBottom: 'var(--spacing-md)' }}>🔗</div>
+                    <div style={{ marginBottom: 'var(--spacing-md)', color: 'var(--color-text-muted)' }}>
+                        <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
+                            <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
+                        </svg>
+                    </div>
                     <h1 className="text-2xl font-bold mb-sm">Hub Not Found</h1>
                     <p className="text-secondary mb-lg">
                         The link hub you're looking for doesn't exist.
@@ -110,20 +115,38 @@ function PublicHub() {
             <div className="container py-2xl" style={{ maxWidth: '600px' }}>
                 {/* Profile Section */}
                 <div className="text-center mb-xl animate-slide-up">
-                    <div style={{
-                        width: '96px',
-                        height: '96px',
-                        borderRadius: 'var(--radius-full)',
-                        background: 'var(--color-accent-subtle)',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        margin: '0 auto var(--spacing-lg)',
-                        fontSize: '2.5rem',
-                        color: 'var(--hub-accent, var(--color-accent-primary))'
-                    }}>
-                        ⚡
-                    </div>
+                    {hub.ownerProfilePic ? (
+                        <img
+                            src={hub.ownerProfilePic}
+                            alt={hub.title}
+                            style={{
+                                width: '96px',
+                                height: '96px',
+                                borderRadius: 'var(--radius-full)',
+                                objectFit: 'cover',
+                                margin: '0 auto var(--spacing-lg)',
+                                display: 'block',
+                                border: '3px solid var(--hub-accent, var(--color-accent-primary))'
+                            }}
+                        />
+                    ) : (
+                        <div style={{
+                            width: '96px',
+                            height: '96px',
+                            borderRadius: 'var(--radius-full)',
+                            background: 'var(--color-accent-subtle)',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            margin: '0 auto var(--spacing-lg)',
+                            color: 'var(--hub-accent, var(--color-accent-primary))'
+                        }}>
+                            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
+                                <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
+                            </svg>
+                        </div>
+                    )}
                     <h1 className="text-3xl font-bold mb-sm">{hub.title}</h1>
                     {hub.description && (
                         <p className="text-secondary">{hub.description}</p>
@@ -150,12 +173,15 @@ function PublicHub() {
                                 <div className="link-card-icon" style={{
                                     color: 'var(--hub-accent, var(--color-accent-primary))'
                                 }}>
-                                    {link.icon || '🔗'}
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                        <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
+                                        <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
+                                    </svg>
                                 </div>
                                 <div className="link-card-content">
                                     <p className="link-card-title">{link.title}</p>
                                 </div>
-                                <span className="link-card-arrow">→</span>
+                                <span className="link-card-arrow">&rarr;</span>
                             </a>
                         ))
                     )}
@@ -168,7 +194,10 @@ function PublicHub() {
                         className="flex items-center justify-center gap-sm text-tertiary"
                         style={{ fontSize: 'var(--font-size-sm)' }}
                     >
-                        <span style={{ color: 'var(--hub-accent, var(--color-accent-primary))' }}>⚡</span>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--hub-accent, var(--color-accent-primary))" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
+                            <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
+                        </svg>
                         Made with Smart Link Hub
                     </Link>
                 </div>

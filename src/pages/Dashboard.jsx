@@ -90,17 +90,24 @@ function Dashboard() {
             {/* Sidebar */}
             <aside className={`sidebar ${sidebarOpen ? 'open' : ''}`}>
                 <div className="flex items-center gap-sm">
-                    <span style={{ fontSize: '1.5rem', color: 'var(--color-accent-primary)' }}>⚡</span>
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--color-accent-primary)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
+                        <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
+                    </svg>
                     <span className="font-bold text-lg">Smart Link Hub</span>
                 </div>
 
                 <nav className="sidebar-nav">
                     <Link to="/dashboard" className="sidebar-link active">
-                        <span>📊</span>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <rect x="3" y="3" width="7" height="7" /><rect x="14" y="3" width="7" height="7" /><rect x="14" y="14" width="7" height="7" /><rect x="3" y="14" width="7" height="7" />
+                        </svg>
                         Dashboard
                     </Link>
                     <Link to="/hub/new" className="sidebar-link">
-                        <span>➕</span>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" />
+                        </svg>
                         New Hub
                     </Link>
                 </nav>
@@ -111,19 +118,17 @@ function Dashboard() {
                     borderTop: '1px solid var(--color-border-secondary)'
                 }}>
                     <div className="flex items-center gap-md mb-md">
-                        <div style={{
-                            width: '40px',
-                            height: '40px',
-                            borderRadius: 'var(--radius-full)',
-                            background: 'var(--color-accent-subtle)',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            color: 'var(--color-accent-primary)',
-                            fontWeight: 'var(--font-weight-bold)'
-                        }}>
-                            {user.name?.[0]?.toUpperCase() || user.email?.[0]?.toUpperCase()}
-                        </div>
+                        {user.profilePicUrl ? (
+                            <img
+                                src={user.profilePicUrl}
+                                alt={user.name || 'User'}
+                                className="avatar avatar-md"
+                            />
+                        ) : (
+                            <div className="avatar avatar-md avatar-initials">
+                                {user.name?.[0]?.toUpperCase() || user.email?.[0]?.toUpperCase()}
+                            </div>
+                        )}
                         <div>
                             <p className="font-medium">{user.name || 'User'}</p>
                             <p className="text-sm text-tertiary">{user.email}</p>
@@ -143,7 +148,9 @@ function Dashboard() {
                         className="btn btn-icon btn-ghost"
                         onClick={() => setSidebarOpen(true)}
                     >
-                        ☰
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <line x1="3" y1="12" x2="21" y2="12" /><line x1="3" y1="6" x2="21" y2="6" /><line x1="3" y1="18" x2="21" y2="18" />
+                        </svg>
                     </button>
                     <span className="font-bold">Dashboard</span>
                     <div style={{ width: '40px' }} />
@@ -156,7 +163,9 @@ function Dashboard() {
                         <p className="text-secondary">Manage your link hubs</p>
                     </div>
                     <Link to="/hub/new" className="btn btn-primary">
-                        <span>+</span>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                            <line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" />
+                        </svg>
                         Create Hub
                     </Link>
                 </div>
@@ -187,7 +196,12 @@ function Dashboard() {
                         </div>
                     ) : hubs.length === 0 ? (
                         <div className="empty-state">
-                            <div className="empty-state-icon">🔗</div>
+                            <div className="empty-state-icon">
+                                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                                    <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
+                                    <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
+                                </svg>
+                            </div>
                             <h3 className="empty-state-title">No hubs yet</h3>
                             <p className="empty-state-description">
                                 Create your first smart link hub to get started
@@ -278,7 +292,7 @@ function HubCard({ hub, onDelete }) {
                         rel="noopener noreferrer"
                         className="hub-card-slug"
                     >
-                        /{hub.slug} ↗
+                        /{hub.slug}
                     </a>
                 </div>
                 <div className="hub-card-body">
@@ -310,13 +324,13 @@ function HubCard({ hub, onDelete }) {
                         Analytics
                     </Link>
                     <button onClick={fetchQRCode} className="btn btn-ghost" title="QR Code" disabled={loadingQR}>
-                        {loadingQR ? '...' : '📱'}
+                        {loadingQR ? '...' : 'QR'}
                     </button>
                     <button onClick={copyUrl} className="btn btn-ghost" title="Copy URL">
-                        📋
+                        Copy
                     </button>
                     <button onClick={onDelete} className="btn btn-ghost" style={{ color: 'var(--color-error)' }} title="Delete">
-                        🗑️
+                        Delete
                     </button>
                 </div>
             </div>
@@ -327,7 +341,7 @@ function HubCard({ hub, onDelete }) {
                     <div className="modal" onClick={e => e.stopPropagation()} style={{ maxWidth: '400px' }}>
                         <div className="modal-header">
                             <h3 className="modal-title">QR Code</h3>
-                            <button onClick={() => setShowQR(false)} className="btn btn-ghost btn-icon">✕</button>
+                            <button onClick={() => setShowQR(false)} className="btn btn-ghost btn-icon">X</button>
                         </div>
                         <div className="modal-body text-center">
                             <img
@@ -356,4 +370,3 @@ function HubCard({ hub, onDelete }) {
 }
 
 export default Dashboard
-

@@ -5,6 +5,8 @@ import { v4 as uuidv4 } from 'uuid'
 import path from 'path'
 import { fileURLToPath } from 'url'
 import QRCode from 'qrcode'
+import multer from 'multer'
+import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const { Pool } = pg
@@ -22,6 +24,42 @@ const corsOptions = {
 app.use(cors(corsOptions))
 app.use(express.json())
 
+// Multer setup for file uploads (in-memory storage)
+const upload = multer({
+    storage: multer.memoryStorage(),
+    limits: { fileSize: 5 * 1024 * 1024 }, // 5MB max
+    fileFilter: (req, file, cb) => {
+        if (file.mimetype.startsWith('image/')) {
+            cb(null, true)
+        } else {
+            cb(new Error('Only image files are allowed'), false)
+        }
+    }
+})
+
+// S3 Client setup
+const s3Client = new S3Client({
+    region: process.env.AWS_REGION || 'ap-south-1',
+    credentials: {
+        accessKeyId: process.env.AWS_ACCESS_KEY_ID || '',
+        secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY || ''
+    }
+})
+
+const S3_BUCKET = process.env.AWS_S3_BUCKET || 'smart-link-hub-uploads'
+
+// Upload file to S3
+const uploadToS3 = async (file, key) => {
+    const command = new PutObjectCommand({
+        Bucket: S3_BUCKET,
+        Key: key,
+        Body: file.buffer,
+        ContentType: file.mimetype,
+    })
+    await s3Client.send(command)
+    return `https://${S3_BUCKET}.s3.${process.env.AWS_REGION || 'ap-south-1'}.amazonaws.com/${key}`
+}
+
 // Initialize PostgreSQL connection pool
 const pool = new Pool({
     connectionString: process.env.DATABASE_URL,
@@ -38,6 +76,7 @@ const initDB = async () => {
                 email TEXT UNIQUE NOT NULL,
                 password TEXT NOT NULL,
                 name TEXT,
+                profile_pic_url TEXT,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             );
 
@@ -56,7 +95,7 @@ const initDB = async () => {
                 hub_id TEXT NOT NULL REFERENCES hubs(id) ON DELETE CASCADE,
                 title TEXT NOT NULL,
                 url TEXT NOT NULL,
-                icon TEXT DEFAULT '🔗',
+                icon TEXT DEFAULT 'link',
                 position INTEGER DEFAULT 0,
                 is_active BOOLEAN DEFAULT true,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -79,7 +118,13 @@ const initDB = async () => {
                 timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             );
         `)
-        console.log('✅ Database tables initialized')
+        // Add profile_pic_url column if it doesn't exist (migration for existing DBs)
+        try {
+            await client.query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS profile_pic_url TEXT`)
+        } catch (e) {
+            // Column may already exist
+        }
+        console.log('Database tables initialized')
     } finally {
         client.release()
     }
@@ -119,7 +164,7 @@ const authenticate = async (req, res, next) => {
 // AUTH ROUTES
 // =====================
 
-app.post('/api/auth/register', async (req, res) => {
+app.post('/api/auth/register', upload.single('profilePic'), async (req, res) => {
     const { email, password, name } = req.body
 
     if (!email || !password) {
@@ -134,14 +179,27 @@ app.post('/api/auth/register', async (req, res) => {
 
         const id = uuidv4()
         const hashedPassword = hashPassword(password)
+        let profilePicUrl = null
+
+        // Upload profile picture to S3 if provided
+        if (req.file) {
+            try {
+                const fileExtension = req.file.originalname.split('.').pop()
+                const s3Key = `profile-pics/${id}.${fileExtension}`
+                profilePicUrl = await uploadToS3(req.file, s3Key)
+            } catch (uploadErr) {
+                console.error('S3 upload error:', uploadErr)
+                // Continue registration even if upload fails
+            }
+        }
 
         await pool.query(
-            'INSERT INTO users (id, email, password, name) VALUES ($1, $2, $3, $4)',
-            [id, email, hashedPassword, name || null]
+            'INSERT INTO users (id, email, password, name, profile_pic_url) VALUES ($1, $2, $3, $4, $5)',
+            [id, email, hashedPassword, name || null, profilePicUrl]
         )
 
         res.json({
-            user: { id, email, name }
+            user: { id, email, name, profilePicUrl }
         })
     } catch (error) {
         console.error('Register error:', error)
@@ -165,11 +223,46 @@ app.post('/api/auth/login', async (req, res) => {
         }
 
         res.json({
-            user: { id: user.id, email: user.email, name: user.name }
+            user: { id: user.id, email: user.email, name: user.name, profilePicUrl: user.profile_pic_url }
         })
     } catch (error) {
         console.error('Login error:', error)
         res.status(500).json({ error: 'Login failed' })
+    }
+})
+
+// Get user profile
+app.get('/api/auth/profile', authenticate, async (req, res) => {
+    res.json({
+        user: {
+            id: req.user.id,
+            email: req.user.email,
+            name: req.user.name,
+            profilePicUrl: req.user.profile_pic_url
+        }
+    })
+})
+
+// Upload/update profile picture
+app.post('/api/auth/upload-avatar', authenticate, upload.single('profilePic'), async (req, res) => {
+    if (!req.file) {
+        return res.status(400).json({ error: 'No file uploaded' })
+    }
+
+    try {
+        const fileExtension = req.file.originalname.split('.').pop()
+        const s3Key = `profile-pics/${req.user.id}.${fileExtension}`
+        const profilePicUrl = await uploadToS3(req.file, s3Key)
+
+        await pool.query(
+            'UPDATE users SET profile_pic_url = $1 WHERE id = $2',
+            [profilePicUrl, req.user.id]
+        )
+
+        res.json({ profilePicUrl })
+    } catch (error) {
+        console.error('Avatar upload error:', error)
+        res.status(500).json({ error: 'Failed to upload avatar' })
     }
 })
 
@@ -232,7 +325,7 @@ app.post('/api/hubs', authenticate, async (req, res) => {
                 const linkId = uuidv4()
                 await client.query(
                     'INSERT INTO links (id, hub_id, title, url, icon, position, is_active) VALUES ($1, $2, $3, $4, $5, $6, $7)',
-                    [linkId, hubId, link.title, link.url, link.icon || '🔗', link.position ?? 0, link.isActive !== false]
+                    [linkId, hubId, link.title, link.url, link.icon || 'link', link.position ?? 0, link.isActive !== false]
                 )
 
                 // Insert rules for this link
@@ -346,7 +439,7 @@ app.put('/api/hubs/:id', authenticate, async (req, res) => {
                 const linkId = uuidv4()
                 await client.query(
                     'INSERT INTO links (id, hub_id, title, url, icon, position, is_active) VALUES ($1, $2, $3, $4, $5, $6, $7)',
-                    [linkId, hubId, link.title, link.url, link.icon || '🔗', link.position ?? 0, link.isActive !== false]
+                    [linkId, hubId, link.title, link.url, link.icon || 'link', link.position ?? 0, link.isActive !== false]
                 )
 
                 if (link.rules && link.rules.length > 0) {
@@ -450,12 +543,17 @@ app.get('/api/public/:slug', async (req, res) => {
             return true
         })
 
+        // Get the hub owner's profile pic
+        const ownerResult = await pool.query('SELECT profile_pic_url FROM users WHERE id = $1', [hub.user_id])
+        const ownerProfilePic = ownerResult.rows[0]?.profile_pic_url || null
+
         res.json({
             hub: {
                 title: hub.title,
                 description: hub.description,
                 theme: hub.theme,
-                slug: hub.slug
+                slug: hub.slug,
+                ownerProfilePic
             },
             links: filteredLinks.map(l => ({
                 id: l.id,
@@ -773,8 +871,20 @@ if (process.env.NODE_ENV === 'production') {
     })
 }
 
+// Global error handler (catches multer errors, etc.)
+app.use((err, req, res, next) => {
+    if (err.code === 'LIMIT_FILE_SIZE') {
+        return res.status(400).json({ error: 'File too large. Maximum size is 5MB.' })
+    }
+    if (err.message === 'Only image files are allowed') {
+        return res.status(400).json({ error: 'Only image files are allowed.' })
+    }
+    console.error('Unhandled error:', err)
+    res.status(500).json({ error: 'Internal server error' })
+})
+
 // Start server
 const PORT = process.env.PORT || 3001
-app.listen(PORT, () => {
-    console.log(`🚀 Server running on http://localhost:${PORT}`)
+app.listen(PORT, '0.0.0.0', () => {
+    console.log(`Server running on http://localhost:${PORT}`)
 })
