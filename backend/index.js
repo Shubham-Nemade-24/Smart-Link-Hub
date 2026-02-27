@@ -858,7 +858,7 @@ app.get('/api/analytics/:hubId/export', authenticate, async (req, res) => {
 
 // Serve static files in production
 if (process.env.NODE_ENV === 'production') {
-    const distPath = path.join(__dirname, '..', 'dist')
+    const distPath = path.join(__dirname, '..', 'frontend', 'dist')
 
     // Serve static assets
     app.use(express.static(distPath))

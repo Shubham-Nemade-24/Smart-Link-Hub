@@ -1,0 +1,113 @@
+============================================
+     HOW TO RUN SMART LINK HUB LOCALLY
+============================================
+
+PREREQUISITES:
+- Node.js 18+ (download from https://nodejs.org)
+- PostgreSQL (download from https://www.postgresql.org/download/)
+- Git
+
+============================================
+STEP 1: Clone the project
+============================================
+
+    git clone https://github.com/Shubham-Nemade-24/Smart-Link-Hub.git
+    cd Smart-Link-Hub
+
+============================================
+STEP 2: Install dependencies
+============================================
+
+    cd frontend
+    npm install
+    cd ../backend
+    npm install
+    cd ..
+
+============================================
+STEP 3: Set up PostgreSQL database
+============================================
+
+Make sure PostgreSQL is running, then create the database:
+
+    createdb smartlinkhub
+
+(The app will auto-create all tables on first run.)
+
+============================================
+STEP 4: Start the backend server
+============================================
+
+Open Terminal 1:
+
+    cd backend
+    DATABASE_URL=postgresql://postgres@localhost:5432/smartlinkhub node index.js
+
+You should see:
+    Server running on http://localhost:3001
+    Database tables initialized
+
+============================================
+STEP 5: Start the frontend dev server
+============================================
+
+Open Terminal 2:
+
+    cd frontend
+    npm run dev
+
+You should see:
+    VITE ready
+    Local: http://localhost:5173/
+
+============================================
+STEP 6: Open in browser
+============================================
+
+Go to: http://localhost:5173
+
+- Click "Get Started" to create an account
+- Create link hubs, add links, set rules
+- View analytics, generate QR codes
+
+============================================
+TO BUILD FOR PRODUCTION
+============================================
+
+    cd frontend
+    npm run build
+
+The build output goes to frontend/dist/
+The backend serves these files when NODE_ENV=production.
+
+============================================
+PROJECT STRUCTURE
+============================================
+
+Smart-Link-Hub/
+├── frontend/          (React + Vite)
+│   ├── src/
+│   │   ├── pages/     (Landing, Login, Dashboard, HubEditor, Analytics, PublicHub)
+│   │   ├── App.jsx    (Routes + Context)
+│   │   ├── api.js     (API base URL config)
+│   │   └── index.css  (All styles)
+│   ├── index.html
+│   ├── vite.config.js
+│   └── package.json
+├── backend/           (Node.js + Express)
+│   ├── index.js       (All API endpoints, DB setup, S3 upload)
+│   └── package.json
+├── package.json       (Root convenience scripts)
+└── README.md
+
+============================================
+NOTES
+============================================
+
+- Profile picture upload requires AWS S3 credentials.
+  Without S3 configured, registration works but profile pics won't upload.
+
+- For AWS deployment, see the deployment guide in the README.
+
+- The Vite dev server proxies /api requests to localhost:3001,
+  so both servers must be running during development.
